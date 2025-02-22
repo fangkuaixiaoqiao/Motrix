@@ -5,7 +5,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
+  release:
 
     runs-on: ubuntu-latest
 
@@ -25,16 +25,6 @@ jobs:
       with:
          node-version: 18
 
-   - name: Install Snapcraft
-     uses: samuelmeuli/action-snapcraft@v2
-     # Only install Snapcraft on Ubuntu
-     env:
-     # Snapcraft
-     SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.snapcraft_token }}
-
-    - name: Test Snapcraft
-      run: snapcraft --help
-
     - name: Download
       run: |
         cd $GITHUB_WORKSPACE/kernel_workspace
@@ -45,3 +35,9 @@ jobs:
         cd $GITHUB_WORKSPACE/kernel_workspace
         yarn
         yarn run build
+
+    - name: Upload
+      uses: actions/upload-artifact@v4
+      with:
+        name: Motrix
+        path: kernel_workspace/release
