@@ -1,0 +1,47 @@
+name: 构建Motrix
+
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+
+
+    - name: Update
+      run: |
+        sudo apt-get update
+        sudo -E apt-get -y -qq install git make bc build-essential bison ccache openssl dos2unix zip kmod cpio flex libelf-dev curl libssl-dev libtfm-dev wget device-tree-compiler ca-certificates python3 python2 binutils binutils-aarch64-linux-gnu binutils-arm-linux-gnueabi
+        mkdir -p $GITHUB_WORKSPACE/kernel_workspace
+
+    - name: Install Node.js, NPM and Yarn
+      uses: actions/setup-node@v3
+      with:
+         node-version: 18
+
+   - name: Install Snapcraft
+     uses: samuelmeuli/action-snapcraft@v2
+     # Only install Snapcraft on Ubuntu
+     env:
+     # Snapcraft
+     SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.snapcraft_token }}
+
+    - name: Test Snapcraft
+      run: snapcraft --help
+
+    - name: Download
+      run: |
+        cd $GITHUB_WORKSPACE/kernel_workspace
+        git clone --depth=1 https://github.com/fangkuaixiaoqiao/Motrix -b master
+
+    - name: Build
+      run: |
+        cd $GITHUB_WORKSPACE/kernel_workspace
+        yarn
+        yarn run build
